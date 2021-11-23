@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ g.meta['title'] }}{% endblock %}
+{% block description %}{{ g.meta['blurb'] }}{% endblock %}
+{% block content %}
+  <h2 id="page-title">{{ self.title() }}</h2>
+  <div id="page-content">
+
+    {{ g.html|safe|indent }}
+
+  </div>
+{% endblock %}

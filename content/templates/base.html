@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {%- block style %}
+  <link rel="stylesheet" href="/style/default.css">
+  <link rel="stylesheet" media="print" href="/style/print.css">
+  {%- endblock %}
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <title>{% block title %}{% endblock %} &mdash; Sean Gilleran</title>
+  <meta property="og:type" content="{{ g.meta.get('doc_type', 'website') }}">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="{{ url_for(request.url_rule.endpoint, _external=True) }}">
+  <meta property="og:site_name" content="Sean Gilleran">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:image" content="{{ g.meta.get('cover_img', 'https://seangilleran.com/img/sean_portrait.jpeg') }}">
+  <meta property="og:description" content="{%- block description %}{% endblock -%}">
+  <meta name="description" content="{{ self.description() }}">
+</head>
+<body>
+
+<h1 id="site-title">Sean Gilleran</h1>
+<nav id="site-nav">
+  <h2 style="display:none">Sitemap</h2>
+  <ul>
+    <li>&#x1f3e0;&nbsp;<a href="{{ url_for('routes.index') }}">Home</a></li>
+    <li>&#x1f468;&#x200d;&#x1f393;&nbsp;<a href="{{ url_for('routes.cv') }}">CV</a></li>
+    <li>&#x1f4d3;&nbsp;<a href="{{ url_for('routes.blog') }}">Blog</a></li>
+    <li>&#x1f9f0;&nbsp;<a href="{{ url_for('routes.projects') }}">Projects</a></li>
+    <li>&#x1f4ee;&nbsp;<a rel="nofollow" href="#site-footer">Contact</a></li>
+  </ul>
+</nav>
+{% block main %}
+<main>
+  {% block content %}{% endblock %}
+  <footer id="page-footer">
+    <img id="page-footer-sep" aria-hidden alt="* * *" src="/img/under_construction.gif"></li>
+    <ul>
+      <li id="stable-url"><a rel="bookmark" href="{{ url_for(request.url_rule.endpoint, _external=True) }}">{{ url_for(request.url_rule.endpoint, _external=True) }}</a></li>
+      <li id="last-updated">Last updated <time datetime="{{ g.meta['date'].strftime('%Y-%m-%d') }}">{{ g.meta['date'].strftime('%B %d, %Y') }}</time></li>
+    </ul>
+  </footer>
+
+</main>
+{% endblock %}
+<footer id="site-footer">
+  <ul>
+    <li>&#x1f4ec;&nbsp;<a rel="nofollow" href="{{ mungify('mailto:sean@wgws.dev')|safe }}">{{ mungify('sean@wgws.dev')|safe }}</a></li>
+    <li>&#x1f425;&nbsp;<a rel="external" target="_blank" href="https://twitter.com/_gilleran">@_gilleran</a></li>
+    <li><a id="nav-top" rel="nofollow" href="#">Back to Top &#8634;</a></li>
+  </ul>
+</footer>
+
+</body>
+</html>

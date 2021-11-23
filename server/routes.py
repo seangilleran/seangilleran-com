@@ -17,7 +17,7 @@ def _render_page(name):
     if not data or data is None:
         return flask.abort(404)
 
-    # We use flask.g to store data global to the application context. See:
+    # We use flask.g to store data global to the application context.
     # https://flask.palletsprojects.com/en/2.0.x/appcontext/
     flask.g.html, flask.g.meta = data
 

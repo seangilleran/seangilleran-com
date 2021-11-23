@@ -42,13 +42,11 @@ def _get_html(name):
     # use otherwise troublesome features like citeproc without having to set up
     # a supplementary toolchain. The end result, ideally, should be one in
     # which blog posts can be rendered as PDFs and vice-versa using the exact
-    # same md and bib json files.
+    # same Markdown and bibliographic JSON files.
     #
     # N.b.: rather than pull the metadata into the HTML files, (which Pandoc
     # doesn't want to do anyway without some coaxing) we can just render it
-    # eperately and load it as YAML data.
-    #
-    # See ../scripts/render.sh to see how this works.
+    # seperately and load it as YAML data.
 
     filepath = Path(app.config["PRERENDER_CONTENT_FOLDER"])
     filepath, metapath = filepath / f"{name}.html", filepath / f"{name}.yaml"
@@ -104,8 +102,8 @@ def get_post(name):
 
 def get_page(name):
 
-    # Pages use "_" as a prefix to distinguish them from blog posts. This
-    # should be done via subdirectories in a later refactor.
+    # Pages use "_" as a prefix to distinguish them from blog posts.
+    # This should be done via subdirectories in a later refactor.
     name = f"_{secure_filename(name)}"
 
     data = _get_html(name)

@@ -49,15 +49,15 @@ def _get_html(name):
     # separately and load it as YAML data.
 
     filepath = Path(app.config["PRERENDER_CONTENT_FOLDER"])
-    filepath, metapath = filepath / f"{name}.html", metapath / f"{name}.yaml"
-    if not filepath.exists() or not metapath.exists():
+    htmlpath, metapath = filepath / f"{name}.html", filepath / f"{name}.yaml"
+    if not htmlpath.exists() or not metapath.exists():
         return None
 
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(htmlpath, "r", encoding="utf-8") as f:
             html = f.read().strip()
         with open(metapath, "r", encoding="utf-8") as f:
-            meta = yaml.load(f, loader=YAMLLoader)
+            meta = yaml.load(f, Loader=YAMLLoader)
     except Exception:
         return None
 

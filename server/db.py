@@ -45,7 +45,7 @@ def _get_html(name):
     # same md and bib json files.
     #
     # N.b.: rather than pull the metadata into the HTML files, (which Pandoc
-    # doesn't want to do anyway without some coaxing) we can just render it 
+    # doesn't want to do anyway without some coaxing) we can just render it
     # eperately and load it as YAML data.
     #
     # See ../scripts/render.sh to see how this works.

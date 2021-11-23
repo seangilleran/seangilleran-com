@@ -1,12 +1,12 @@
 #!/bin/bash
 
-rm content/.html/*
-
+rm content/.html/*.html
+rm content/.html/*.yaml
 for filename in content/*.md; do
-    pandoc -o /tmp/content.html "$filename" -f markdown+autolink_bare_uris --ascii &&
-    tidy -config scripts/tidy.conf /tmp/content.html > content/.html/$(basename "${filename%.*}").html &&
-    sed '/\.\.\./q' "$filename" > content/.html/$(basename "${filename%.*}").yaml &&
-    rm /tmp/content.html
+    pandoc -o "/tmp/~render.html" "$filename" -f markdown+autolink_bare_uris --ascii &&
+    tidy -config scripts/tidy.conf "/tmp/~render.html" > content/.html/$(basename "${filename%.*}").html &&
+    rm "/tmp/~render.html" &&
+    sed '/\.\.\./q' "$filename" > content/.html/$(basename "${filename%.*}").yaml
 done
 
 rm wwwroot/files/cv.docx

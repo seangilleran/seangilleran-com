@@ -46,7 +46,7 @@ def _get_html(name):
     #
     # N.b.: rather than pull the metadata into the HTML files, (which Pandoc
     # doesn't want to do anyway without some coaxing) we can just render it
-    # seperately and load it as YAML data.
+    # separately and load it as YAML data.
 
     filepath = Path(app.config["PRERENDER_CONTENT_FOLDER"])
     filepath, metapath = filepath / f"{name}.html", filepath / f"{name}.yaml"

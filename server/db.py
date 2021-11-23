@@ -49,7 +49,7 @@ def _get_html(name):
     # separately and load it as YAML data.
 
     filepath = Path(app.config["PRERENDER_CONTENT_FOLDER"])
-    filepath, metapath = filepath / f"{name}.html", filepath / f"{name}.yaml"
+    filepath, metapath = filepath / f"{name}.html", metapath / f"{name}.yaml"
     if not filepath.exists() or not metapath.exists():
         return None
 

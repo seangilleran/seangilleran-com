@@ -2,10 +2,13 @@
 """
 
 from pathlib import Path
-import re
 
 from flask import current_app as app
 from markdown import Markdown
+from werkzeug.utils import secure_filename
+
+# Try the faster LibYAML loader first, then fall back on the Python version.
+# https://pyyaml.org/wiki/PyYAMLDocumentation
 import yaml
 try:
     from yaml import CLoader as YAMLLoader
@@ -13,7 +16,8 @@ except ImportError:
     from yaml import Loader as YAMLLoader
 
 
-_RE_BAD_PATH = re.compile(r"[\\\/\.\*]")
+# See list of markdown extensions here:
+# https://python-markdown.github.io/extensions/
 _MD_PLUGINS = [
     "full_yaml_metadata",
     "smarty",
@@ -30,15 +34,47 @@ _MD_PLUGINS = [
 ]
 
 
+def _get_html(name):
+
+    # HTML content is rendered with Pandoc whenever we start the server. This
+    # has two big advantages: first, it's faster than chunking through the
+    # Markdown every single time we need to load the page. Second, it lets us
+    # use otherwise troublesome features like citeproc without having to set up
+    # a supplementary toolchain. The end result, ideally, should be one in
+    # which blog posts can be rendered as PDFs and vice-versa using the exact
+    # same md and bib json files.
+    #
+    # N.b.: rather than pull the metadata into the HTML files, (which Pandoc
+    # doesn't want to do anyway without some coaxing) we can just render it 
+    # eperately and load it as YAML data.
+    #
+    # See ../scripts/render.sh to see how this works.
+
+    filepath = Path(app.config["PRERENDER_CONTENT_FOLDER"])
+    filepath, metapath = filepath / f"{name}.html", filepath / f"{name}.yaml"
+    if not filepath.exists() or not metapath.exists():
+        return None
+
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            html = f.read().strip()
+        with open(metapath, "r", encoding="utf-8") as f:
+            meta = yaml.load(f, loader=YAMLLoader)
+    except Exception:
+        return None
+
+    if "description" not in meta:
+        meta["description"] = html.splitlines()[0][3:-4]
+
+    return html, meta
+
+
 def _get_markdown(name):
 
-    # Check file path for special characters--make sure we're not going outside the content path.
-    filepath = Path(app.config["CONTENT_FOLDER"])
-    filepath = filepath / f"{re.sub(_RE_BAD_PATH, '', name)}.md"
+    filepath = Path(app.config["CONTENT_FOLDER"]) / f"{name}.md"
     if not filepath.exists():
         return None
 
-    # Read content from file.
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             text = f.read()
@@ -48,41 +84,30 @@ def _get_markdown(name):
     md = Markdown(extensions=_MD_PLUGINS)
     html = md.convert(text)
     meta = md.Meta
-    if "blurb" not in meta:
-        meta["blurb"] = html.splitlines()[0][3:-4]
-
-    html = "<!-- md -->\n" + html
-    return html, meta
-
-
-def _get_html(name):
-
-    # Check file path for special characters--make sure we're not going outside the content path.
-    filepath = Path(app.config["CONTENT_FOLDER"]) / ".html"
-    name = f"{re.sub(_RE_BAD_PATH, '', name)}"
-    filepath, metapath = filepath / f"{name}.html", filepath / f"{name}.yaml"
-    if not filepath.exists() or not metapath.exists():
-        return None
-
-    # Read content from files.
-    try:
-        with open(filepath, "r", encoding="utf-8") as f:
-            html = f.read().strip()
-    except Exception:
-        return None
-
-    try:
-        with open(metapath, "r", encoding="utf-8") as f:
-            meta = yaml.load(f, loader=YAMLLoader)
-    except Exception:
-        return None
-    if "blurb" not in meta:
-        meta["blurb"] = html.splitlines()[0][3:-4]
+    if "description" not in meta:
+        meta["description"] = html.splitlines()[0][3:-4]
 
     return html, meta
+
+
+def get_post(name):
+
+    # Make sure file system is not inadvertently being exposed to the web.
+    # https://werkzeug.palletsprojects.com/en/2.0.x/utils/#werkzeug.utils.secure_filename
+    name = secure_filename(name)
+
+    data = _get_html(name)
+    if not data:
+        data = _get_markdown(name)
+    return data
 
 
 def get_page(name):
+
+    # Pages use "_" as a prefix to distinguish them from blog posts. This
+    # should be done via subdirectories in a later refactor.
+    name = f"_{secure_filename(name)}"
+
     data = _get_html(name)
     if not data:
         data = _get_markdown(name)

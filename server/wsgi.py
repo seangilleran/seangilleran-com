@@ -18,10 +18,11 @@ def create_app(*args, **kwargs):
     )
 
     app.config.update(
-        CONTENT_FOLDER=os.getenv("CONTENT_FOLDER", ""),
-        PREFERRED_URL_SCHEME="https",
+        SERVER_NAME=os.getenv("SERVER_NAME", ""),
         SECRET_KEY=os.getenv("SECRET_KEY", str(secrets.token_hex())),
-        SERVER_NAME=os.getenv("SERVER_NAME", "")
+        PREFERRED_URL_SCHEME="https",
+        CONTENT_FOLDER=os.getenv("CONTENT_FOLDER", ""),
+        PRERENDER_CONTENT_FOLDER=os.getenv("PRERENDER_CONTENT_FOLDER", "")
     )
 
     app.register_blueprint(routes)
